@@ -3,6 +3,13 @@
 #include <pthread.h>
 using namespace std;
 
+class Frame{
+public:
+	char seqNo;
+	char value;
+	char crcRemainder;
+};
+
 // bool RequestToSend = false;
 bool ArrivalNotificationSenderSide = false;
 // bool TimeOut = false;
@@ -69,16 +76,63 @@ void * sending(void* arg){
 	}
 }
 
-bool corrupted(char frame)
+
+bool check=false;
+int ReceiveIndex=0;
+char data[1000];
+bool Marked[8];
+int TempArray[8];
+char DataReceived;
+
+bool corrupted(int a,int b)
 {
-	return true;
+	if(a%b == 0)
+		return true;
+	else
+		return false;
 }
+
+
 void * waitforevent(void * argv){
-if(data successfully received)
-	ArrivalNotificationReceiverSide=true;
+	if(data successfully received and check!=true)
+		ArrivalNotificationReceiverSide=true;
+}
+
+
+void SendNAK(int n)
+{
+
+	//socket for sending NAK
+
+}
+
+void sendAck(int n)
+{
+
+	//socket for sending Ack
+
+}
+
+void DeliverData(int n)
+{
+
+	if(TempArray[n]!= -1 )
+			data[ReceiveIndex++]=TempArray[n];
+	else
+		data[ReceiveIndex++]=DataReceived;
+
+}
+
+void Purge(int n){
+
+	TempArray[n]=-1;
+	Marked[n]=false;
+
 }
 
 void * receiving(void *arg){
+	for(int i=0;i<8;i++)
+		Marked[i]=false;
 	pthread_t receivertestthread;
 	pthread_create(&receivertestthread,NULL,waitforevent,NULL);
 
@@ -87,7 +141,7 @@ void * receiving(void *arg){
 
 		printf("receiving.....%d\n",rcount);
 		if(ArrivalNotificationReceiverSide == true){
-			ArrivalNotificationReceiverSide=false;
+			check=true;
 			Receive(Frame);
 			if(corrupted(Frame) && (! NakSent)){
 				SendNAK(Rn);
@@ -96,17 +150,19 @@ void * receiving(void *arg){
 			}
 			if((seqNo != Rn){
 
-				if(! NakSent){ 
+				if(!NakSent){ 
 					SendNAK(Rn);
 					NakSent = true;
 				}
-				if((seqNo in  window) && (!Marked(seqNo))){
+				if(( 0<=seqNo && seqNo<=7 ) && (!Marked[seqNo])){
 					StoreFrame(seqNo);
-					Marked(seqNo) = true;	}
+					TempArray[seqNo]=frame.data;
+					Marked[seqNo] = true;
+				}
 			}
 			else{
-				Marked(Rn)=true;
-				while(Marked(Rn)){
+				Marked[Rn]=true;
+				while(Marked[Rn]){
 					DeliverData(Rn);
 					Purge(Rn);
 					Rn = Rn + 1;
@@ -118,7 +174,10 @@ void * receiving(void *arg){
 					NakSent = false;
 				}
 			}
+			check=false;
+			ArrivalNotificationReceiverSide=false;
 		}
+		
 	}
 	pthread_join(receivertestthread,NULL);
 }
