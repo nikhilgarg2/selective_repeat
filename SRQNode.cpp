@@ -72,6 +72,12 @@ int MakeFrame(char data, int Sn ){
 	// newFrame.seqNo = (char)Sn;
 	// newFrame.value = data;
 	// newFrame.crcRemainder = (int)data/Sn;
+	int frame = Sn << 8;
+	frame = frame | data;
+	frame = frame << 4;
+	frame = frame | 11;
+	frame = frame << 2;
+	frame = frame | 0; //00 means send; 10 means send ack; 11 means nack
 }
 
 void * requestToSendHandler(void * arg){
