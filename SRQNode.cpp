@@ -77,7 +77,7 @@ int MakeFrame(char data, int Sn ){
 	frame = frame << 4;
 	frame = frame | 11;
 	frame = frame << 2;
-	frame = frame | 0; //00 means send; 10 means send ack; 11 means nack
+	frame = frame | 0; //00 means send; 01 means send ack; 11 means nack
 }
 
 void * requestToSendHandler(void * arg){
