@@ -101,10 +101,13 @@ void * receiving(void *arg){
 	}
 }
 
+
+
 int main(){
 	//Spawn two threads which do the 
 	//sending and receiving
 	pthread_t sendingThread, receivingThread;
+
 	pthread_create(&sendingThread, NULL, sending, NULL);
 	pthread_create(&receivingThread, NULL, receiving, NULL);
 
