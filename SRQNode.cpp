@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdio.h>
 #include <pthread.h>
 using namespace std;
 
@@ -25,7 +26,7 @@ void * sending(void* arg){
 	//spawn three event threads
 	while(true){
 		scount++;
-		cout<<"Sending..."<<scount<<endl;
+		printf("sending.....%d\n",scount);
 		// if(RequestToSend == true){
 		// 	if(Sn -Sf >= Sw){
 		// 		Sleep();
@@ -72,7 +73,7 @@ void * receiving(void *arg){
 	//spawn the single thread
 	while(true){
 		rcount++;
-		cout<<"Receiving..."<<rcount<<endl;
+		printf("receiving.....%d\n",rcount);
 		// if(ArrivalNotificationReceiverSide == true){
 		// 	Receive(Frame);
 		// 	if(corrupted(Frame) && (! NakSent)){
