@@ -46,6 +46,15 @@ void * upperLayer(void * arg){
 	}
 }
 
+
+
+class Frame{
+public:
+	char seqNo;
+	char value;
+	char crcRemainder;
+};
+
 char GetData(){
 	char data;
 	if(i < message.length()){
@@ -58,13 +67,9 @@ char GetData(){
 	return data;
 }
 
-class Frame{
-public:
-	char seqNo;
-	char value;
-	char crcRemainder;
-};
-
+Frame MakeFrame(char data, int Sn ){
+	Frame newFrame = new Frame();
+}
 
 void * requestToSendHandler(void * arg){
 	vector<Frame> frameBuffer;
@@ -75,7 +80,7 @@ void * requestToSendHandler(void * arg){
 			}
 			if(Sn - Sf < Sw){
 				char data = GetData();
-				MakeFrame(Sn);
+				MakeFrame(data, Sn);
 				StoreFrame(Sn);
 				SendFrame(Sn);
 				Sn = Sn + 1;
