@@ -3,17 +3,10 @@
 #include <pthread.h>
 using namespace std;
 
-class Frame{
-public:
-	char seqNo;
-	char value;
-	char crcRemainder;
-};
-
 // bool RequestToSend = false;
 bool ArrivalNotificationSenderSide = false;
 // bool TimeOut = false;
-// bool ArrivalNotificationReceiverSide = false;
+bool ArrivalNotificationReceiverSide = false;
 
 // int Sw = pow(2, m-1);
 // int Sf = 0;
@@ -29,60 +22,59 @@ bool AckNeeded = false;
 int scount = 0;
 int rcount = 0;
 
-void * sending(void* arg){
-	//spawn three event threads
-	while(true){
-		scount++;
-		printf("sending.....%d\n",scount);
-		// if(RequestToSend == true){
-		// 	if(Sn -Sf >= Sw){
-		// 		Sleep();
-		// 	}
-		// 	if(Sn - Sf < Sw){
-		// 		GetData();
-		// 		MakeFrame(Sn);
-		// 		StoreFrame(Sn);
-		// 		SendFrame(Sn);
-		// 		Sn = Sn + 1;
-		// 		StartTimer(Sn);
-		// 	}
-		// }
-		// if(ArrivalNotificationSenderSide == true){
-		// 	Receive(frame);
-		// 	if(corrupted(frame))
-		// 		Sleep();
-		// 	else{
-		// 		if(FrameType == NAK){
-		// 			if(nakNo >= Sf && nakNo <= Sn){
-		// 				resend(nakNo);
-		// 				StartTimer(nakNo);
-		// 			}
-		// 		}
-		// 		if(FrameType == ACK){
-		// 			if(ackNo >= Sf && ackNo <= Sn){
-		// 				while(Sf < ackNo){
-		// 					Purge(Sf);
-		// 					StopTimer(Sf);
-		// 					Sf = Sf + 1;
-		// 				}
-		// 			}
-		// 		}	
-		// 	}
-		// }
-		// if(TimeOut == true){
-		// 	StartTimer(t);
-		// 	SendFrame(t)
-		// }
-	}
-}
+// void * sending(void* arg){
+// 	//spawn three event threads
+// 	while(true){
+// 		// scount++;
+// 		// printf("sending.....%d\n",scount);
+// 		// if(RequestToSend == true){
+// 		// 	if(Sn -Sf >= Sw){
+// 		// 		Sleep();
+// 		// 	}
+// 		// 	if(Sn - Sf < Sw){
+// 		// 		GetData();
+// 		// 		MakeFrame(Sn);
+// 		// 		StoreFrame(Sn);
+// 		// 		SendFrame(Sn);
+// 		// 		Sn = Sn + 1;
+// 		// 		StartTimer(Sn);
+// 		// 	}
+// 		// }
+// 		// if(ArrivalNotificationSenderSide == true){
+// 		// 	Receive(frame);
+// 		// 	if(corrupted(frame))
+// 		// 		Sleep();
+// 		// 	else{
+// 		// 		if(FrameType == NAK){
+// 		// 			if(nakNo >= Sf && nakNo <= Sn){
+// 		// 				resend(nakNo);
+// 		// 				StartTimer(nakNo);
+// 		// 			}
+// 		// 		}
+// 		// 		if(FrameType == ACK){
+// 		// 			if(ackNo >= Sf && ackNo <= Sn){
+// 		// 				while(Sf < ackNo){
+// 		// 					Purge(Sf);
+// 		// 					StopTimer(Sf);
+// 		// 					Sf = Sf + 1;
+// 		// 				}
+// 		// 			}
+// 		// 		}	
+// 		// 	}
+// 		// }
+// 		// if(TimeOut == true){
+// 		// 	StartTimer(t);
+// 		// 	SendFrame(t)
+// 		// }
+// 	}
+// }
 
-
+int Frame,seqNo,Remainder,DataReceived,DataCheck;
 bool check=false;
 int ReceiveIndex=0;
 char data[1000];
 bool Marked[8];
 int TempArray[8];
-char DataReceived;
 
 bool corrupted(int a,int b)
 {
@@ -92,35 +84,62 @@ bool corrupted(int a,int b)
 		return false;
 }
 
+void Receive(int n)
+{
+	
+	printf("%d\n",Frame );
+	Remainder = Frame & 15;
+	Frame=Frame >> 4;
+	DataReceived= Frame & 255;
+	Frame=Frame >> 8;
+	seqNo = Frame;
+	DataCheck=0;
+	DataCheck = DataCheck | DataReceived;
+	DataCheck = DataCheck << 4;
+	DataCheck = DataCheck | Remainder;
+	printf("DataReceived %c\n",DataReceived);
+	printf("seqNo %d\n", seqNo);
+	printf("Remainder %d\n", Remainder);
 
-void * waitforevent(void * argv){
-	if(data successfully received and check!=true)
-		ArrivalNotificationReceiverSide=true;
 }
 
+void * waitforevent(void * argv){
+	if(check!=true){
+		Frame = 5787;
+		ArrivalNotificationReceiverSide=true;
+	}
+}
 
 void SendNAK(int n)
 {
 
-	//socket for sending NAK
+	int DataSend=0;//socket for sending NakSent		// 01 is sent in case it is negative ack.
+	DataSend = DataSend | n;
+	DataSend = DataSend << 2;
+	DataSend = DataSend | 1;
 
 }
 
 void sendAck(int n)
 {
 
-	//socket for sending Ack
+	int DataSend=0;//socket for sending Acknowledgement  // 11 is sent at the last in case of positive acknowledgement.   
+	DataSend = DataSend | n;
+	DataSend = DataSend << 2;
+	DataSend = DataSend | 3;
+
 
 }
 
 void DeliverData(int n)
 {
 
-	if(TempArray[n]!= -1 )
-			data[ReceiveIndex++]=TempArray[n];
+	if(TempArray[n]!= 0 )
+			data[ReceiveIndex++]=char(TempArray[n]);
 	else
-		data[ReceiveIndex++]=DataReceived;
-
+		data[ReceiveIndex++]=char(DataReceived);
+	
+	printf("DataReceivedHere %c\n", data[0]);
 }
 
 void Purge(int n){
@@ -137,26 +156,22 @@ void * receiving(void *arg){
 	pthread_create(&receivertestthread,NULL,waitforevent,NULL);
 
 	while(true){
-		rcount++;
-
-		printf("receiving.....%d\n",rcount);
 		if(ArrivalNotificationReceiverSide == true){
 			check=true;
 			Receive(Frame);
-			if(corrupted(Frame) && (! NakSent)){
+			if(corrupted(DataReceived,11) && (! NakSent)){
 				SendNAK(Rn);
 				NakSent = true;
 				//sleep();
 			}
-			if((seqNo != Rn){
+			if(seqNo != Rn){
 
 				if(!NakSent){ 
 					SendNAK(Rn);
 					NakSent = true;
 				}
 				if(( 0<=seqNo && seqNo<=7 ) && (!Marked[seqNo])){
-					StoreFrame(seqNo);
-					TempArray[seqNo]=frame.data;
+					TempArray[seqNo]=DataReceived;
 					Marked[seqNo] = true;
 				}
 			}
@@ -180,6 +195,7 @@ void * receiving(void *arg){
 		
 	}
 	pthread_join(receivertestthread,NULL);
+
 }
 
 
@@ -189,10 +205,10 @@ int main(){
 	//sending and receiving
 	pthread_t sendingThread, receivingThread;
 
-	pthread_create(&sendingThread, NULL, sending, NULL);
+	//pthread_create(&sendingThread, NULL, sending, NULL);
 	pthread_create(&receivingThread, NULL, receiving, NULL);
 
-	pthread_join(sendingThread, NULL);
+	//pthread_join(sendingThread, NULL);
 	pthread_join(receivingThread, NULL);
 	
 	pthread_exit(NULL);
