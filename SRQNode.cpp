@@ -48,12 +48,12 @@ void * upperLayer(void * arg){
 
 
 
-class Frame{
-public:
-	char seqNo;
-	char value;
-	char crcRemainder;
-};
+// class Frame{
+// public:
+// 	char seqNo;
+// 	char value;
+// 	char crcRemainder;
+// };
 
 char GetData(){
 	char data;
@@ -67,8 +67,11 @@ char GetData(){
 	return data;
 }
 
-Frame MakeFrame(char data, int Sn ){
-	Frame newFrame = new Frame();
+int MakeFrame(char data, int Sn ){
+	// Frame newFrame = new Frame();
+	// newFrame.seqNo = (char)Sn;
+	// newFrame.value = data;
+	// newFrame.crcRemainder = (int)data/Sn;
 }
 
 void * requestToSendHandler(void * arg){
